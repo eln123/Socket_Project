@@ -33,9 +33,8 @@ function displayMessage(message) {
 /////////////
 clientSocket.on("connect", () => {
   console.log("Connected to server");
-  const div = document.createElement("div");
+  const div = document.getElementById("id");
   div.textContent = `The id for this client is: ${clientSocket.id}`;
-  document.getElementById("message-container").append(div);
 
   const timeHeader = document.getElementById("time");
 
@@ -44,5 +43,7 @@ clientSocket.on("connect", () => {
   });
   clientSocket.on("receive-message", (message, room) => {
     displayMessage(message);
+    // this callback function can also
+    // be used to show when the message is sent
   });
 });
