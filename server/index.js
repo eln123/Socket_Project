@@ -1,36 +1,28 @@
 const express = require("express");
 const app = express();
 const path = require("path");
+const socket = require("socket.io");
+
+const { socketFunc } = require("./socket");
+const morgan = require("morgan");
 
 app.use(express.static(path.join(__dirname, "..", "public")));
+
+// logging middleware
+app.use(morgan("dev"));
+
+// body parsing middleware
+app.use(express.json());
+
+// auth and api routes
+// app.use("/auth", require("./auth"));
+// app.use("/api", require("./api"));
 
 const PORT = 3000;
 const server = app.listen(PORT, () => {
   console.log(`Listening on port ${PORT}`);
 });
-
-const socket = require("socket.io");
 const serverSocket = socket(server);
+socketFunc(serverSocket);
 
-serverSocket.on("connection", (socket) => {
-  console.log(`Connection from client ${socket.id}`);
-
-  setInterval(() => {
-    const time = new Date().toLocaleString();
-    socket.emit("time-change", time);
-  }, 1000);
-
-  socket.on("send-message", (message, room) => {
-    if (room === "") {
-      socket.broadcast.emit("receive-message", message);
-    } else {
-      socket.to(room).emit("receive-message", message);
-    }
-  });
-
-  socket.on("join-room", (room, cb) => {
-    console.log(room);
-    socket.join(room);
-    cb(`Joined ${room}`);
-  });
-});
+module.exports = { app, server };
